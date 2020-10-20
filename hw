@@ -1,0 +1,57 @@
+#include <msp430g2553.h>
+#define DELAY 500000
+void main() {
+    WDTCTL = WDTPW | WDTHOLD;
+
+    P2DIR = 0xFF;
+    P2OUT = 0x00;
+    P1DIR &= ~(BIT3 | BIT4 | BIT5);
+    P1REN |= BIT3 | BIT4 | BIT5;
+    P1OUT |= BIT3 | BIT4 | BIT5;
+
+    P1IES |= BIT3 | BIT4| BIT5;
+    P1IE |= BIT3 | BIT4 | BIT5;
+    __enable_interrupt();
+    P1IFG &= ~(BIT3 | BIT4 | BIT5);
+
+    while(1) {
+        if(!(P2IN & BIT3)){
+            P2OUT = P2OUT | (BIT3 | BIT6);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT3 | BIT6)));
+            __delay_cycles(DELAY);
+            P2OUT = P2OUT | (BIT2 | BIT3);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT2 | BIT3)));
+            __delay_cycles(DELAY);
+    }
+        else if(!(P2IN & BIT4)){
+            P2OUT = P2OUT | (BIT2 | BIT6);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT2 | BIT6)));
+            __delay_cycles(DELAY);
+            P2OUT = P2OUT | (BIT2 | BIT3);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT2 | BIT3)));
+            __delay_cycles(DELAY);
+    }
+        else if (!(P2IN & BIT5)){
+            P2OUT = P2OUT | (BIT0 | BIT3);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT0 | BIT3)));
+            __delay_cycles(DELAY);
+            P2OUT = P2OUT | (BIT5 | BIT4);
+            __delay_cycles(DELAY);
+            P2OUT = (P2OUT & (~(BIT5 | BIT4)));
+            __delay_cycles(DELAY);
+    }
+  }
+}
+
+#pragma vector = PORT2_VECTOR
+__interrupt void ISR_PORT2_S1(void)
+{
+ P2OUT ^= BIT0;
+ P1IFG &= ~(BIT3 | BIT4 | BIT5);
+
+}
